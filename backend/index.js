@@ -200,7 +200,7 @@ app.get("/get-all-stories",authenticateToken,async(req,res)=>{
     }
 })
 //Edit Travel Story
-app.post('/edit-story/:id',authenticateToken,async(req,res)=>{
+app.put('/edit-story/:id',authenticateToken,async(req,res)=>{
     const {id}=req.params;
     const{userId}=req.user;
     const {title,story,visitedLocation,imageUrl,visitedDate}=req.body;
@@ -242,7 +242,9 @@ app.post('/edit-story/:id',authenticateToken,async(req,res)=>{
 app.delete('/delete-story/:id',authenticateToken,async(req,res)=>{
   const {id}=req.params;
   const {userId}=req.user;
-
+  if (!mongoose.isValidObjectId(id)) {
+    return res.status(400).json({ error: true, msg: 'Invalid ID format' });
+  }
   try{
 
   //find the travel story by Id and ensure it belongs to the authenticated user
@@ -277,6 +279,69 @@ app.delete('/delete-story/:id',authenticateToken,async(req,res)=>{
 }
 })
 
+//Update the isfavourite schema
+app.put('/update-is-favourite/:id',authenticateToken,async(req,res)=>{
+  const {id}=req.params
+  const {userId}=req.user
+  const {isFavourite}=req.body
+
+  try{
+    const travelStory=await finaltravelStorySchema.findOne({_id:id,userId:userId})
+    console.log(travelStory)
+    if(!travelStory){
+      res.status(404).json({error:false,msg:"Travel story not found"})
+    }
+    travelStory.isFavourite=isFavourite
+    await travelStory.save()
+    res.status(200).json({error:false,story:travelStory,msg:'Update sucessfull'})
+  }catch(error){
+    res.status(500).json({error:true,msg:error.message})
+  }
+})
+
+//search by any similar text in story and all
+app.post('/search',authenticateToken,async(req,res)=>{
+  const {query}=req.query
+  const {userId}=req.user
+
+  if(!query){
+    return res
+      .status(404)
+      .json({error:true,msg:'Query is must required'})
+  }
+  try{
+  const searchResults=await finaltravelStorySchema.find({
+    userId:userId,
+    $or:[{title:{$regex:query,$options:"i"}},
+    {story:{$regex:query,$options:"i"}},
+    {visitedLocation:{$regex:query,$options:"i"}}
+    ]}).sort({isFavourite:-1})
+
+    res.status(200).json({stories:searchResults})
+  }catch(e){
+    res.status(500).json({error:true,msg:e.message})
+  }
+})
+
+//filter the stories based on the date range
+app.get('/travel-stories/filter',authenticateToken,async(req,res)=>{
+  const {startDate,endDate}=req.query
+  const {userId}=req.user
+  try{
+  //convert the milliseconds to actual Date objects
+  const start=new Date(parseInt(startDate))
+  const end=new Date(parseInt(endDate))
+
+  //find the travel stories of the authenticated user in the certain date range
+  const filterdStories=await finaltravelStorySchema.find({
+    userId:userId,
+    visitedDate:{$gte:start,$lte:end}
+  }).sort({isFavourite:-1})
+  res.status(200).json({story:filterdStories})
+  }catch(err){
+  res.status(500).json({msg:error.message})
+  }
+})
 
 
 app.listen(8000);
