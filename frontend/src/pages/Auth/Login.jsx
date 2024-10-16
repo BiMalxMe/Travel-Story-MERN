@@ -28,8 +28,8 @@ export const Login = () => {
         password: password,
       });
       //Handle sucessfull login response
-      if (response.data && response.data.accessToken) {
-        localStorage.setItem("token", response.data.accessToken);
+      if (response.data && response.data.acessToken) {
+        localStorage.setItem("token", response.data.acessToken);
         navigate("/dashboard");
       }
     } catch (error) {

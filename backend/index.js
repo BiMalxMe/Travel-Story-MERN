@@ -344,5 +344,7 @@ app.get('/travel-stories/filter',authenticateToken,async(req,res)=>{
 })
 
 
-app.listen(8000);
+app.listen(8000,()=>{
+  console.log("Server Running.....")
+});
 module.exports = app;
