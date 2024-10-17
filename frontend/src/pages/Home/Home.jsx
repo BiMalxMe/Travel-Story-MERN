@@ -2,12 +2,15 @@ import { NavBar } from "../../components/Navbar"
 import { useNavigate } from "react-router-dom"
 import { useEffect, useState } from "react"
 import axiosInstance from "../../utils/axiosInstance"
+import { TravelStoryCard } from "../../components/Cards/TravelStoryCard"
 
 
 export const Home=()=>{
 
     const navigate=useNavigate()
     const [userInfo,setUserInfo]=useState(null)
+    const [allStories,setallStories]=useState([])
+
     //get user Info
   
     const getuserInfo=async()=>{
@@ -25,7 +28,28 @@ export const Home=()=>{
             }
         }
     }
+
+    //Get all travel stories
+    const getallTravelStories=async()=>{
+        try{
+            const response=await axiosInstance.get('/get-all-stories');
+            if(response.data && response.data.stories){
+                setallStories(response.data.stories)
+            }
+        }catch(err){
+            console.log('An unexpected error occured. Please try again')
+        }
+    }
+//handle Edit Story Click
+const handleEdit=(data)=>{}
+
+//handle travel story click
+const handleViewStory=(data)=>{}
+
+//handle update favourite
+const updateIsFavourite=(storydata)=>{}
     useEffect(()=>{
+        getallTravelStories()
             getuserInfo()
             return ()=>{}
     },[])
@@ -36,5 +60,38 @@ export const Home=()=>{
         return <div>Loading...</div>; // You can show a loading spinner or placeholder here
     }
 
-    return <NavBar userInfo={userInfo} />;
+    return (<div>
+        <NavBar userInfo={userInfo} />
+
+    <div className="container mx-auto py-10">
+        <div className="flex gap-7">
+            <div className="flex-1">
+            {allStories.length>0?(
+                <div className="grid grid-cols-2 gap-4">
+                    {allStories.map((item)=>{
+                        return (
+                            <TravelStoryCard
+                             key={item._id}
+                             imageUrl={item.imageUrl}
+                             title={item.title}
+                             story={item.story}
+                             date={item.visitedDate}
+                             visitedLocation={item.visitedLocation}
+                             isFavourite={item.isFavourite}
+                             onEdit={()=>handleEdit(item)}
+                             onClick={()=>handleViewStory(item)}
+                             onFavouriteClick={()=>updateIsFavourite(item)}
+                             />
+                        );
+                    })}
+                </div>
+            ):(
+                <>Empty Card Here</>
+            )}
+            </div>
+            <div className="w-[320px]"></div>
+            </div>
+        </div>
+    </div>
+    )
 }
