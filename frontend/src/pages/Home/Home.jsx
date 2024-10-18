@@ -47,7 +47,21 @@ const handleEdit=(data)=>{}
 const handleViewStory=(data)=>{}
 
 //handle update favourite
-const updateIsFavourite=(storydata)=>{}
+const updateIsFavourite=async (storyData)=>{
+     const storyId=storyData._id
+   
+     try{
+        const response=await axiosInstance.put('/update-is-favourite/'+storyId,{
+                isFavourite:!storyData.isFavourite,
+        }
+    );
+    if(response.data && response.data.story){
+        getallTravelStories()
+    }
+     }catch(err){
+        console.log('An unexpected error occured. Please try again')
+     }
+}
     useEffect(()=>{
         getallTravelStories()
             getuserInfo()
@@ -79,7 +93,7 @@ const updateIsFavourite=(storydata)=>{}
                              visitedLocation={item.visitedLocation}
                              isFavourite={item.isFavourite}
                              onEdit={()=>handleEdit(item)}
-                             onClick={()=>handleViewStory(item)}
+                             onclick={()=>handleViewStory(item)}
                              onFavouriteClick={()=>updateIsFavourite(item)}
                              />
                         );
