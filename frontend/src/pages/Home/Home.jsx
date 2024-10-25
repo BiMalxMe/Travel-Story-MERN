@@ -3,13 +3,22 @@ import { useNavigate } from "react-router-dom"
 import { useEffect, useState } from "react"
 import axiosInstance from "../../utils/axiosInstance"
 import { TravelStoryCard } from "../../components/Cards/TravelStoryCard"
-
+import { ToastContainer,toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+import {MdAdd} from 'react-icons/md'
+import Modal from 'react-modal'
+import { AddEditTravelStory } from "./AddEditTravelStory"
 
 export const Home=()=>{
 
     const navigate=useNavigate()
     const [userInfo,setUserInfo]=useState(null)
     const [allStories,setallStories]=useState([])
+    const [openAddEditModel,setOpenAddEditModel]=useState({
+        isShown:false,
+        type:'add',
+        data:null
+    })
 
     //get user Info
   
@@ -56,6 +65,7 @@ const updateIsFavourite=async (storyData)=>{
         }
     );
     if(response.data && response.data.story){
+        toast.success("Story Updated Sucessfully")
         getallTravelStories()
     }
      }catch(err){
@@ -68,7 +78,7 @@ const updateIsFavourite=async (storyData)=>{
             return ()=>{}
     },[])
 
-    
+
 
     if (!userInfo) {
         return <div>Loading...</div>; // You can show a loading spinner or placeholder here
@@ -106,6 +116,37 @@ const updateIsFavourite=async (storyData)=>{
             <div className="w-[320px]"></div>
             </div>
         </div>
+        {/* //Add and edit travel story modal */}
+        <Modal 
+                isOpen={openAddEditModel.isShown}
+                onRequestClose={()=>{}}
+                style={{
+                    overlay:{
+                        backgroundColor:"rgba(0,0,0,0.2)",
+                        zIndex:999,
+                    },
+                }}
+                appElement={document.getElementById('root')}
+                className="model-box"
+        >
+            <AddEditTravelStory
+            type={openAddEditModel.type}
+            storyInfo={openAddEditModel.data}
+            onclose={()=>{
+                setOpenAddEditModel({isShown:false,type:"add",data:null})
+            }}
+            getallTravelStories={getallTravelStories}
+            />
+        </Modal>
+        <button 
+        className="w-16 h-16 flex items-center justify-center rounded-full bg-primary hover:bg-cyan-400 fixed right-10 bottom-10"
+        onClick={()=>{
+            setOpenAddEditModel({isShown:true,type:"add", data:null})
+        }}
+        >
+                <MdAdd className="text-[32px] text-white"/>
+        </button>
+        <ToastContainer />
     </div>
     )
 }

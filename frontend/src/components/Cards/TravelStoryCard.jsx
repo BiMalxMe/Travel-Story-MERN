@@ -8,7 +8,7 @@ export const TravelStoryCard = ({
   date,
   story,
   visitedLocation,
-  isFavouite,
+  isFavourite,
   onFavouriteClick,
   onclick,
 }) => {
@@ -25,7 +25,7 @@ export const TravelStoryCard = ({
         onClick={onFavouriteClick}
       >
       <FaHeart
-        className={`icon-btn ${isFavouite ? "text-red-500" : "text-white"}`}
+        className={`icon-btn ${isFavourite?"text-red-500":"text-white"}`}
       />
       </button>
       <div className="p-4" onClick={onclick}>
@@ -40,7 +40,7 @@ export const TravelStoryCard = ({
         <p className="text-xs text-slate-600 mt-2">{story?.slice(0, 60)}</p>
 
         <div className="inline-flex items-center gap-2 text-[13px] text-cyan-600 bg-cyan-200/40 rounded mt-3 px-2 py-1 ">
-          <GrMapLocation className="text-sm" />
+          <GrMapLocation className="text-sm " />
           {visitedLocation.map((item, index) =>
             visitedLocation.length == index + 1 ? `${item}` : `${item}`
           )}
